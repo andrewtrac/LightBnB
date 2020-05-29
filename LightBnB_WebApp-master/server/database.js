@@ -21,12 +21,9 @@ password: password
 
 /// Users
 
-/**
- * Get a single user from the database given their email.
- * @param {String} email The email of the user.
- * @return {Promise<{}>} A promise to the user.
- */
-const getUserWithEmail = function(email) {
+module.exports = {
+
+ getUserWithEmail: function(email) {
 
   const emailQuery = `
   SELECT * FROM users
@@ -40,17 +37,9 @@ const getUserWithEmail = function(email) {
       return res.rows[0]
     }
   })
+},
 
-  
-}
-exports.getUserWithEmail = getUserWithEmail;
-
-/**
- * Get a single user from the database given their id.
- * @param {string} id The id of the user.
- * @return {Promise<{}>} A promise to the user.
- */
-const getUserWithId = function(id) {
+ getUserWithId: function(id) {
 
   const idQuery = `
   SELECT * FROM users
@@ -64,16 +53,9 @@ const getUserWithId = function(id) {
       return res.rows[0]
     }
   })
-}
-exports.getUserWithId = getUserWithId;
+},
 
-
-/**
- * Add a new user to the database.
- * @param {{name: string, password: string, email: string}} user
- * @return {Promise<{}>} A promise to the user.
- */
-const addUser =  function(user) {
+ addUser:  function(user) {
   
   const addUserQuery = `
   INSERT INTO users (name, email, password)
@@ -84,19 +66,9 @@ const addUser =  function(user) {
 
   return pool.query(addUserQuery, values).then((res) => {
     return res.rows[0]})
-}
-exports.addUser = addUser;
+},
 
-/// Reservations
-/*
-  juliansantos@aol.com   
-*/
-/**
- * Get all reservations for a single user.
- * @param {string} guest_id The id of the user.
- * @return {Promise<[{}]>} A promise to the reservations.
- */
-const getAllReservations = function(guest_id, limit = 10) {
+ getAllReservations: function(guest_id, limit = 10) {
 
   const allResQuery = `
  SELECT properties.*, reservations.*, avg(rating) as average_rating
@@ -114,19 +86,9 @@ const getAllReservations = function(guest_id, limit = 10) {
    
     return res.rows
   })
-}
-exports.getAllReservations = getAllReservations;
+},
 
-/// Properties
-
-/**
- * Get all properties.
- * @param {{}} options An object containing query options.
- * @param {*} limit The number of results to return.
- * @return {Promise<[{}]>}  A promise to the properties.
- */
-
-  const getAllProperties = function(options, limit = 10) {
+  getAllProperties: function(options, limit = 10) {
 
 
     const optionsArray = Object.keys(options)
@@ -189,19 +151,10 @@ exports.getAllReservations = getAllReservations;
       console.log(res.rows)
       return res.rows})
 
-    }
-  
-
-
-exports.getAllProperties = getAllProperties;
-
-
-/**
- * Add a property to the database
- * @param {{}} property An object containing all of the property details.
- * @return {Promise<{}>} A promise to the property.
- */
-const addProperty = function(property) {
+    },
+    
+    
+    addProperty: function(property) {
 
   const addPropertyQuery = `
   INSERT INTO properties (title, description,  number_of_bedrooms, number_of_bathrooms, parking_spaces, cost_per_night, 
@@ -209,21 +162,6 @@ const addProperty = function(property) {
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
   RETURNING *;
   `
- /*
-  title: 'New Dev Guy in Training',
-  description: 'asdfasdfasdfa',
-  number_of_bedrooms: '42',
-  number_of_bathrooms: '2',
-  parking_spaces: '1',
-  cost_per_night: '1000',
-  thumbnail_photo_url: 'none',
-  cover_photo_url: 'none',
-  street: '54 walby drive',
-  country: 'US',
-  city: 'New York',
-  province: 'Stuff',
-  post_code: 'Stuff',
-  owner_id: 103 } */
 
   const propertyKeys = Object.keys(property)
   const propertyValues = []
@@ -241,10 +179,6 @@ const addProperty = function(property) {
     console.log(res.rows)
    return res.rows[0]})
 
+}
 
 }
-exports.addProperty = addProperty;
-
-/*
-
-josephvelasquez@gmx.com */
