@@ -202,10 +202,46 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+
+  const addPropertyQuery = `
+  INSERT INTO properties (title, description,  number_of_bedrooms, number_of_bathrooms, parking_spaces, cost_per_night, 
+  thumbnail_photo_url, cover_photo_url, street, country, city, province, post_code, owner_id)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+  RETURNING *;
+  `
+ /*
+  title: 'New Dev Guy in Training',
+  description: 'asdfasdfasdfa',
+  number_of_bedrooms: '42',
+  number_of_bathrooms: '2',
+  parking_spaces: '1',
+  cost_per_night: '1000',
+  thumbnail_photo_url: 'none',
+  cover_photo_url: 'none',
+  street: '54 walby drive',
+  country: 'US',
+  city: 'New York',
+  province: 'Stuff',
+  post_code: 'Stuff',
+  owner_id: 103 } */
+
+  const propertyKeys = Object.keys(property)
+  const propertyValues = []
+
+  propertyKeys.map((element) => {
+
+    if (element === 'cost_per_night') {
+    propertyValues.push(Number(property[element]) * 100)
+    } else {
+    propertyValues.push(property[element])
+    }
+    })
+
+  return pool.query(addPropertyQuery, propertyValues).then((res) => {
+    console.log(res.rows)
+   return res.rows[0]})
+
+
 }
 exports.addProperty = addProperty;
 
