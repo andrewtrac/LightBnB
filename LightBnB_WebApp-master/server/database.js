@@ -88,7 +88,9 @@ const addUser =  function(user) {
 exports.addUser = addUser;
 
 /// Reservations
-
+/*
+  juliansantos@aol.com   
+*/
 /**
  * Get all reservations for a single user.
  * @param {string} guest_id The id of the user.
@@ -107,10 +109,11 @@ const getAllReservations = function(guest_id, limit = 10) {
  LIMIT $2;
   `
   const values = [guest_id, limit]
-  return pool.query(allResQuery, values)
-  .then((res) => {
-    console.log(res.rows[0])
-    return res.rows[0]})
+
+  return pool.query(allResQuery, values).then((res) => {
+   
+    return res.rows
+  })
 }
 exports.getAllReservations = getAllReservations;
 
@@ -124,13 +127,70 @@ exports.getAllReservations = getAllReservations;
  */
 
   const getAllProperties = function(options, limit = 10) {
+
+
+    const optionsArray = Object.keys(options)
+
+    const queryParams = [];
+
+    let queryString = `
+    SELECT properties.*, avg(property_reviews.rating) as average_rating
+    FROM properties
+    JOIN property_reviews ON properties.id = property_id 
+    `;
+    if (!optionsArray) {
+      return null
+    } else {
+
+      queryString += 'WHERE '
+
+      for (let element of optionsArray) {
+      if (element === 'city' && options[element]) {
+        queryParams.push(`%${options[element]}%`);
+        queryString += `city LIKE $${queryParams.length} AND `;
+
+      } else if (element === 'minimum_price_per_night' && options[element]) {
+        queryParams.push(Number(options[element]) * 100);
+        queryString += `cost_per_night >= $${queryParams.length} AND `;
+
+      } else if (element === 'maximum_price_per_night' && options[element]) {
+        queryParams.push(Number(options[element]) * 100);
+        queryString += `cost_per_night <= $${queryParams.length} AND `;
+
+      } else if (element === 'minimum_rating' && options[element]) {
+        queryParams.push(options[element] * 100);
+        queryString += `rating >= $${queryParams.length} AND `;
+
+      } else if (element === 'owner_id' && options[element]) {
+        queryParams.push(options[element]);
+        queryString += `owner_id = $${queryParams.length} AND `;
+
+      } else if (!options[element] || element === '%%') {
+        queryParams;
+        queryString;
+      }
+
+    }
+  
+    queryString = queryString.slice(0, -4)
+
+    }
+  
+    queryParams.push(limit);
+    queryString += `
+    GROUP BY properties.id
+    ORDER BY cost_per_night
+    LIMIT $${queryParams.length};
+    `;
     
-    return pool.query(`
-    SELECT * FROM properties
-    LIMIT $1
-    `, [limit])
-    .then(res => res.rows);
-  }
+    console.log(queryString, queryParams)
+
+    return pool.query(queryString, queryParams).then(res => {
+      console.log(res.rows)
+      return res.rows})
+
+    }
+  
 
 
 exports.getAllProperties = getAllProperties;
@@ -148,3 +208,7 @@ const addProperty = function(property) {
   return Promise.resolve(property);
 }
 exports.addProperty = addProperty;
+
+/*
+
+josephvelasquez@gmx.com */
